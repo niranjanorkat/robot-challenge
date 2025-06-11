@@ -2,7 +2,6 @@ package librobot
 
 import (
 	"time"
-	"fmt"
 )
 const (
 	WAREHOUSE_WIDTH  = 10
@@ -23,11 +22,11 @@ type RobotState struct {
 }
 
 type robot struct {
-	id string
-	x, y uint
-	wh Warehouse
+	id       string
+	x, y     uint
+	hasCrate bool
+	wh       Warehouse
 }
-
 // NewRobot constructs a new robot at a given position.
 func NewRobot(id string, wh Warehouse) Robot {
 	return &robot{
@@ -42,7 +41,6 @@ func NewRobot(id string, wh Warehouse) Robot {
 func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan error) {
 	positionCh := make(chan RobotState)
 	errCh := make(chan error, 1)
-	hasCrate := false
 
 	go func() {
 		for _, c := range commands {
@@ -67,20 +65,20 @@ func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan erro
 					newX--
 				}
 			case 'G':
-				if !hasCrate {
-					if cw, ok := r.wh.(CrateWarehouse); ok {
-						if cw.HasCrate(r.x, r.y) {
-							cw.DelCrate(r.x, r.y)
-							hasCrate = true
-						}
+				if !r.hasCrate {
+				if cw, ok := r.wh.(CrateWarehouse); ok {
+					if cw.HasCrate(r.x, r.y) {
+						cw.DelCrate(r.x, r.y)
+						r.hasCrate = true
 					}
 				}
+			}
 			case 'D':
-				if hasCrate {
+				if r.hasCrate {
 					if cw, ok := r.wh.(CrateWarehouse); ok {
 						if !cw.HasCrate(r.x, r.y) {
 							cw.AddCrate(r.x, r.y)
-							hasCrate = false
+							r.hasCrate = false
 						}
 					}
 				}
@@ -94,7 +92,7 @@ func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan erro
 				r.x, r.y = newX, newY
 			}
 
-			positionCh <- RobotState{X: r.x, Y: r.y, HasCrate: hasCrate}
+			positionCh <- RobotState{X: r.x, Y: r.y, HasCrate: r.hasCrate}
 		}
 		close(positionCh)
 		errCh <- nil
