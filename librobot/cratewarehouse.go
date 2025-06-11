@@ -20,13 +20,19 @@ type crateWarehouse struct {
 func NewCrateWarehouse() CrateWarehouse {
 	return &crateWarehouse{
 		warehouse: &warehouse{
-			robots:   []Robot{},
-			occupied: make(map[[2]uint]bool),
+			robots:        []Robot{},
+			occupied:      make(map[Position]bool),
 		},
 		crates: make(map[[2]uint]bool),
 	}
 }
 
+func (cw *crateWarehouse) AddRobot() (Robot, error) {
+	id := fmt.Sprintf("R%d", len(cw.robots)+1)
+	r := NewRobot(id, cw)
+	cw.robots = append(cw.robots, r)
+	return r, nil
+}
 // AddCrate places a crate at a given position.
 func (cw *crateWarehouse) AddCrate(x, y uint) error {
 	pos := [2]uint{x, y}

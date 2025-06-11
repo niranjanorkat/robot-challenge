@@ -2,6 +2,7 @@ package librobot
 
 import (
 	"time"
+	"fmt"
 )
 const (
 	WAREHOUSE_WIDTH  = 10
@@ -24,11 +25,11 @@ type RobotState struct {
 type robot struct {
 	id string
 	x, y uint
-	wh *warehouse
+	wh Warehouse
 }
 
 // NewRobot constructs a new robot at a given position.
-func NewRobot(id string, wh *warehouse) Robot {
+func NewRobot(id string, wh Warehouse) Robot {
 	return &robot{
 		id: id,
 		x:  0,
@@ -67,16 +68,20 @@ func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan erro
 				}
 			case 'G':
 				if !hasCrate {
-					if r.wh.HasCrate(r.x, r.y) {
-						r.wh.DelCrate(r.x, r.y)
-						hasCrate = true
+					if cw, ok := r.wh.(CrateWarehouse); ok {
+						if cw.HasCrate(r.x, r.y) {
+							cw.DelCrate(r.x, r.y)
+							hasCrate = true
+						}
 					}
 				}
 			case 'D':
 				if hasCrate {
-					if !r.wh.HasCrate(r.x, r.y) {
-						r.wh.AddCrate(r.x, r.y)
-						hasCrate = false
+					if cw, ok := r.wh.(CrateWarehouse); ok {
+						if !cw.HasCrate(r.x, r.y) {
+							cw.AddCrate(r.x, r.y)
+							hasCrate = false
+						}
 					}
 				}
 			}
@@ -97,6 +102,7 @@ func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan erro
 
 	return "task-id", positionCh, errCh
 }
+
 
 func (r *robot) CancelTask(taskID string) error {
 	panic("CancelTask not implemented")

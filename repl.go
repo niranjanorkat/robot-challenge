@@ -18,6 +18,10 @@ const (
 	CmdShowRobots    = "show_robots"
 	CmdMoveRobot     = "move_robot"
 	CmdShowGrid = "show_grid"
+	CmdAddCrate     = "add_crate"
+	CmdAddCWarehouse = "add_cwarehouse"
+	CmdShowCrates       = "show_crates"
+
 
 	CmdExit          = "exit"
 )
@@ -36,6 +40,18 @@ const (
 	MsgNoWarehouses       = "No warehouses available."
 	MsgCurrentWarehouses  = "Current Warehouses:"
 	MsgInvalidWarehouseID = "Invalid warehouse ID."
+	
+	// Crate Warehouse
+	MsgCrateAdded       = "Crate added successfully."
+	MsgInvalidAddCrate  = "Usage: add_crate W<id> x y"
+	MsgCrateError       = "Error adding crate:"
+	MsgCWarehouseAdded  = "Crate-enabled warehouse added successfully."
+
+	// Crates
+	MsgInvalidShowCrate = "Usage: show_crates W<id>"
+	MsgCrateListHeader  = "Crates in warehouse:"
+	MsgNoCrates         = "No crates in this warehouse."
+	MsgNotCrateWarehouse = "This warehouse does not support crates."
 
 	// Robot
 	MsgRobotAdded         = "Robot added to warehouse."
@@ -98,6 +114,62 @@ func main() {
 			fmt.Println(MsgCurrentWarehouses)
 			for i := range warehouses {
 				fmt.Printf("- W%d\n", i+1)
+			}
+		case CmdAddCWarehouse:
+			warehouses = append(warehouses, librobot.NewCrateWarehouse())
+			fmt.Println(MsgCWarehouseAdded)
+
+		case CmdAddCrate:
+			if len(parts) != 4 {
+				fmt.Println(MsgInvalidAddCrate)
+				continue
+			}
+			wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+			x, err2 := strconv.Atoi(parts[2])
+			y, err3 := strconv.Atoi(parts[3])
+			if err1 != nil || err2 != nil || err3 != nil || wID <= 0 || wID > len(warehouses) {
+				fmt.Println(MsgInvalidAddCrate)
+				continue
+			}
+			if cw, ok := warehouses[wID-1].(librobot.CrateWarehouse); ok {
+				err := cw.AddCrate(uint(x), uint(y))
+				if err != nil {
+					fmt.Println(MsgCrateError, err)
+				} else {
+					fmt.Println(MsgCrateAdded)
+				}
+			} else {
+				fmt.Println("This warehouse does not support crates.")
+			}
+		// Crate
+		case CmdShowCrates:
+			if len(parts) != 2 {
+				fmt.Println(MsgInvalidShowCrate)
+				continue
+			}
+			wID, err := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+			if err != nil || wID <= 0 || wID > len(warehouses) {
+				fmt.Println(MsgInvalidWarehouseID)
+				continue
+			}
+			warehouse := warehouses[wID-1]
+			cw, ok := warehouse.(librobot.CrateWarehouse)
+			if !ok {
+				fmt.Println(MsgNotCrateWarehouse)
+				continue
+			}
+			fmt.Println(MsgCrateListHeader)
+			found := false
+			for x := 0; x < 10; x++ {
+				for y := 0; y < 10; y++ {
+					if cw.HasCrate(uint(x), uint(y)) {
+						fmt.Printf("- Crate at (x=%d, y=%d)\n", x, y)
+						found = true
+					}
+				}
+			}
+			if !found {
+				fmt.Println(MsgNoCrates)
 			}
 
 		// ─── Robot Commands ─────────────────────────────────
@@ -174,24 +246,50 @@ func main() {
 				fmt.Println(MsgInvalidWarehouseID)
 				continue
 			}
-			grid := [10][10]string{}
+			warehouse := warehouses[wID-1]
+
+			// ROBOT GRID
+			fmt.Println("Robot Grid:")
+			robotGrid := [10][10]string{}
 			for y := 0; y < 10; y++ {
 				for x := 0; x < 10; x++ {
-					grid[y][x] = "."
+					robotGrid[y][x] = "."
 				}
 			}
-			for i, r := range warehouses[wID-1].Robots() {
+			for i, r := range warehouse.Robots() {
 				s := r.CurrentState()
 				if s.Y < 10 && s.X < 10 {
-					grid[s.Y][s.X] = fmt.Sprintf("R%d", i+1)
+					robotGrid[s.Y][s.X] = fmt.Sprintf("R%d", i+1)
 				}
 			}
 			for y := 0; y < 10; y++ {
 				for x := 0; x < 10; x++ {
-					fmt.Printf("%-3s", grid[y][x])
+					fmt.Printf("%-3s", robotGrid[y][x])
 				}
 				fmt.Println()
 			}
+
+			// CRATE GRID
+			if cw, ok := warehouse.(librobot.CrateWarehouse); ok {
+				fmt.Println("\nCrate Grid:")
+				crateGrid := [10][10]string{}
+				for y := 0; y < 10; y++ {
+					for x := 0; x < 10; x++ {
+						if cw.HasCrate(uint(x), uint(y)) {
+							crateGrid[y][x] = "C"
+						} else {
+							crateGrid[y][x] = "."
+						}
+					}
+				}
+				for y := 0; y < 10; y++ {
+					for x := 0; x < 10; x++ {
+						fmt.Printf("%-3s", crateGrid[y][x])
+					}
+					fmt.Println()
+				}
+			}
+		
 		// ─── Exit ───────────────────────────────────────────
 		case CmdExit:
 			fmt.Println(MsgExit)
@@ -199,7 +297,8 @@ func main() {
 
 		default:
 			fmt.Println(MsgUnknownCommand)
+		
+
 		}
 	}
 }
-

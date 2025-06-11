@@ -8,6 +8,7 @@ type Warehouse interface {
 	AddRobot()(Robot, error)
 	SendCommand(robotIndex int, command string) error 
 	IsOccupied(x, y uint) bool
+	updatePosition(oldX, oldY, newX, newY uint)
 }
 
 type Position struct {
@@ -18,6 +19,7 @@ type Position struct {
 type warehouse struct {
 	robots []Robot
 	occupied map[Position]bool
+
 }
 
 // NewWarehouse creates a new instance of a warehouse.
