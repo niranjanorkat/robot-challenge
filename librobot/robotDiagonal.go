@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+// DiagonalRobot extends the Robot interface to support diagonal movement.
+// It behaves like a regular Robot but can also interpret and execute diagonal commands like "NE", "NW", "SE", and "SW".
 type DiagonalRobot interface {
 	Robot
 }
@@ -12,8 +14,7 @@ type diagonalRobot struct {
 	*robot
 }
 
-// ─── Constructor ─────────────────────────────────────────────
-
+// NewDiagonalRobot creates a new robot capable of diagonal movement.
 func NewDiagonalRobot(id string, wh Warehouse) Robot {
 	r := &diagonalRobot{
 		robot: &robot{
@@ -28,8 +29,6 @@ func NewDiagonalRobot(id string, wh Warehouse) Robot {
 	go r.taskProcessor()
 	return r
 }
-
-// ─── Public Methods ──────────────────────────────────────────
 
 func (r *diagonalRobot) EnqueueTask(commands string) string {
 	tokens := tokenizeDiagonalMoves(commands)
@@ -59,8 +58,6 @@ func (r *diagonalRobot) CurrentState() RobotState {
 func (r *diagonalRobot) GetActiveTasks() []TaskInfo {
 	return r.robot.GetActiveTasks()
 }
-
-// ─── Internal Processor and Helpers ──────────────────────────
 
 func (r *diagonalRobot) taskProcessor() {
 	for t := range r.taskQueue {

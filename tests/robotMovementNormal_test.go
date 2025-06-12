@@ -1,4 +1,4 @@
-package librobot
+package tests
 
 import (
 	"testing"

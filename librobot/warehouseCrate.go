@@ -4,24 +4,29 @@ import (
 	"fmt"
 )
 
-// ─── Interface ───────────────────────────────────────────────
-
+// CrateWarehouse extends Warehouse functionality by supporting crate placement and retrieval.
+// In addition to managing robots, it tracks crate positions and allows operations on them.
 type CrateWarehouse interface {
 	Warehouse
+
+	// AddCrate places a crate at the specified (x, y) position.
 	AddCrate(x uint, y uint) error
+
+	// DelCrate removes the crate from the specified position.
 	DelCrate(x uint, y uint) error
+
+	// HasCrate returns true if a crate exists at the given position.
 	HasCrate(x uint, y uint) bool
 }
 
-// ─── Implementation ──────────────────────────────────────────
+
 
 type crateWarehouse struct {
 	*warehouse
 	crates map[[2]uint]bool // crate location map
 }
 
-// ─── Constructor ─────────────────────────────────────────────
-
+// NewCrateWarehouse returns a new CrateWarehouse instance with empty robot and crate maps.
 func NewCrateWarehouse() CrateWarehouse {
 	return &crateWarehouse{
 		warehouse: &warehouse{
@@ -31,8 +36,6 @@ func NewCrateWarehouse() CrateWarehouse {
 		crates: make(map[[2]uint]bool),
 	}
 }
-
-// ─── Public Methods ──────────────────────────────────────────
 
 func (cw *crateWarehouse) AddRobot(robotType string) (Robot, error) {
 	id := fmt.Sprintf("R%d", len(cw.robots)+1)

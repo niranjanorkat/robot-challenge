@@ -4,18 +4,23 @@ import (
 	"fmt"
 )
 
-// ─── Interface ───────────────────────────────────────────────
-
+// Warehouse represents a simulated 2D grid environment where multiple robots can operate.
+// It manages robot placement, movement, and ensures no two robots occupy the same cell.
 type Warehouse interface {
+	// Robots returns a slice of all robots currently in the warehouse.
 	Robots() []Robot
+
+	// AddRobot adds a new robot of the specified type to the warehouse.
 	AddRobot(robotType string) (Robot, error)
+
+	// SendCommand sends a movement command string to the robot at the given index.
 	SendCommand(robotIndex int, command string) error
+
 	isOccupied(x, y uint) bool
 	updatePosition(oldX, oldY, newX, newY uint)
 }
 
-// ─── Types ───────────────────────────────────────────────────
-
+// Position represents a discrete (X, Y) coordinate in the warehouse grid.
 type Position struct {
 	X uint
 	Y uint
@@ -26,16 +31,14 @@ type warehouse struct {
 	occupied map[Position]bool
 }
 
-// ─── Constructor ─────────────────────────────────────────────
-
+// NewWarehouse creates and returns a new warehouse instance.
+// Robots added to the warehouse are prevented from overlapping positions.
 func NewWarehouse() Warehouse {
 	return &warehouse{
 		robots:   []Robot{},
 		occupied: make(map[Position]bool),
 	}
 }
-
-// ─── Public Methods ──────────────────────────────────────────
 
 func (w *warehouse) AddRobot(robotType string) (Robot, error) {
 	id := fmt.Sprintf("R%d", len(w.robots)+1)

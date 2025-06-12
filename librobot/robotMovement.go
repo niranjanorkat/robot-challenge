@@ -4,20 +4,14 @@ import (
 	"time"
 )
 
-// ─── Warehouse Dimensions ────────────────────────────────────
-
 const (
 	WAREHOUSE_WIDTH  = 10
 	WAREHOUSE_HEIGHT = 10
 )
 
-// ─── Movement Handler Type ───────────────────────────────────
-
 type movementHandler func(r *robot, c string) bool
 
-// ─── Movement Strategies ─────────────────────────────────────
 
-// Handle cardinal directions (N, S, E, W)
 func handleNormal(r *robot, c string) bool {
 	newX, newY := r.x, r.y
 	switch c {
@@ -58,7 +52,6 @@ func handleNormal(r *robot, c string) bool {
 	return true
 }
 
-// Handle crate pickup (G) and drop (D)
 func handleCrate(r *robot, c string) bool {
 	switch c {
 	case "G":
@@ -81,7 +74,6 @@ func handleCrate(r *robot, c string) bool {
 	return false
 }
 
-// Handle diagonal movements (NE, NW, SE, SW)
 func handleDiagonal(r *robot, c string) bool {
 	newX, newY := r.x, r.y
 	switch c {
@@ -113,9 +105,6 @@ func handleDiagonal(r *robot, c string) bool {
 	return true
 }
 
-// ─── Movement Executor ───────────────────────────────────────
-
-// Executes a sequence of commands with one-second delay and cancel support.
 func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...movementHandler) string {
 	for _, c := range commands {
 		select {

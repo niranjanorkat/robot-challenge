@@ -6,6 +6,7 @@ const (
 	TaskStatusAborted   = "aborted"
 )
 
+// TaskInfo represents metadata about a task, used for reporting active tasks.
 type TaskInfo struct {
 	ID          string
 	Status      string

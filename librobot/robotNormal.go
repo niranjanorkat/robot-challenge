@@ -5,13 +5,25 @@ import (
 	"fmt"
 )
 
+// Robot represents a warehouse robot capable of executing movement and crate-related tasks asynchronously.
+// Tasks are enqueued via string-based commands and executed one step per second.
 type Robot interface {
+	// EnqueueTask queues a new task with a command string for asynchronous execution.
+	// Returns a unique task ID.
 	EnqueueTask(commands string) (taskID string)
+
+	// CancelTask attempts to cancel an in-progress task by its task ID.
 	CancelTask(taskID string) error
+
+	// CurrentState returns the robot's current position and crate-carrying status.
 	CurrentState() RobotState
+
+	// GetActiveTasks returns metadata about all currently active tasks.
 	GetActiveTasks() []TaskInfo
 }
 
+
+// RobotState holds the current coordinates and crate status of a robot.
 type RobotState struct {
 	X        uint
 	Y        uint
@@ -28,8 +40,8 @@ type robot struct {
 	activeTasks sync.Map
 }
 
-// ─── Constructor ─────────────────────────────────────────────
-
+// NewRobot creates and returns a new robot instance operating within the provided warehouse.
+// The robot starts at position (0,0) and processes enqueued tasks asynchronously.
 func NewRobot(id string, wh Warehouse) Robot {
 	r := &robot{
 		id:        id,
@@ -41,8 +53,6 @@ func NewRobot(id string, wh Warehouse) Robot {
 	go r.taskProcessor()
 	return r
 }
-
-// ─── Public Methods ──────────────────────────────────────────
 
 func (r *robot) EnqueueTask(commands string) string {
 	tokens := make([]string, len(commands))
@@ -62,6 +72,7 @@ func (r *robot) EnqueueTask(commands string) string {
 	r.taskQueue <- *t
 	return taskID
 }
+
 
 func (r *robot) CancelTask(taskID string) error {
 	if val, ok := r.activeTasks.Load(taskID); ok {
@@ -95,8 +106,6 @@ func (r *robot) GetActiveTasks() []TaskInfo {
 func (r *robot) CurrentState() RobotState {
 	return RobotState{X: r.x, Y: r.y, IsCarryingCrate: r.isCarryingCrate}
 }
-
-// ─── Internal Processor ──────────────────────────────────────
 
 func (r *robot) taskProcessor() {
 	for t := range r.taskQueue {
