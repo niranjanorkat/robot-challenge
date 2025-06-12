@@ -19,7 +19,11 @@ const (
 	MsgErrorAddingRobot = "Error adding robot:"
 	MsgRobotPosition    = "R%d → (x=%d, y=%d)\n"
 )
-
+var (
+	MsgInvalidAddRobot    = "Invalid add_robot command. Usage: " + MsgUsageAddRobot
+	MsgInvalidShowRobots  = "Invalid show_robots command. Usage: " + MsgUsageShowRobots
+	MsgInvalidMove        = "Invalid move_robot command. Usage: " + MsgUsageMoveRobot
+)
 func handleRobotCommands(parts []string) bool {
 	switch parts[0] {
 

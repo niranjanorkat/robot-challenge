@@ -7,19 +7,24 @@ import (
 )
 
 const (
-	MsgShowTasksUsage  = "show_tasks W<id> R<id> - Shows tasks for robot R<id>."
-	MsgCancelTaskUsage = "cancel_task W<id> R<id> TASKID - Cancels task for robot."
-	
-	MsgNoTasks       = "No active tasks."
-	MsgCancelFailed  = "Failed to cancel task:"
-	MsgCancelSuccess = "Task cancelled successfully."
+	MsgUsageShowTasks  = "show_tasks W<id> R<id> - Shows tasks for robot R<id>."
+	MsgUsageCancelTask = "cancel_task W<id> R<id> TASKID - Cancels task for robot."
+
+	MsgNoTasks        = "No active tasks."
+	MsgCancelFailed   = "Failed to cancel task:"
+	MsgCancelSuccess  = "Task cancelled successfully."
+)
+
+var (
+	MsgInvalidShowTasks  = "Invalid show_tasks command. Usage: " + MsgUsageShowTasks
+	MsgInvalidCancelTask = "Invalid cancel_task command. Usage: " + MsgUsageCancelTask
 )
 
 func handleTaskCommands(parts []string) bool {
 	switch parts[0] {
 	case CmdShowTasks:
 		if len(parts) != 3 {
-			fmt.Println(MsgShowTasksUsage)
+			fmt.Println(MsgInvalidShowTasks)
 			return true
 		}
 		wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
@@ -46,7 +51,7 @@ func handleTaskCommands(parts []string) bool {
 
 	case CmdCancelTask:
 		if len(parts) != 4 {
-			fmt.Println(MsgCancelTaskUsage)
+			fmt.Println(MsgInvalidCancelTask)
 			return true
 		}
 		wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))

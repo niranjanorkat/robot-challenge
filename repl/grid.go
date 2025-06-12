@@ -10,7 +10,6 @@ import (
 
 const (
 	MsgUsageShowGrid     = "show_grid W<id> - Displays robot and crate grid layout."
-	MsgInvalidShowGrid   = "Invalid show_grid command. Usage: " + MsgUsageShowGrid
 	MsgRobotGridHeader   = "Robot Grid"
 	MsgCrateGridHeader   = "Crate Grid"
 	MsgGridEmptyCell     = "."
@@ -18,6 +17,10 @@ const (
 	MsgGridCrateCell     = "C"
 	MsgGridRobotPrefix   = "R"
 	MsgGridDiagonalPrefix = "D"
+)
+
+var (
+	MsgInvalidShowGrid = "Invalid show_grid command. Usage: " + MsgUsageShowGrid
 )
 
 func handleGridCommands(parts []string) bool {
