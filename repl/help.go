@@ -3,16 +3,16 @@ package repl
 import "fmt"
 
 var commandHelpMap = map[string]string{
-	CmdAddWarehouse:  "add_warehouse [type] - Adds a warehouse. Type: 'n' (normal) or 'c' (crate-enabled). Defaults to 'n'.",
-	CmdShowWarehouse: "show_warehouse - Lists all warehouses with their type.",
-	CmdAddRobot:      "add_robot W<id> [type] - Adds robot to warehouse W<id>. Type: 'N' (normal) or 'D' (diagonal).",
-	CmdShowRobots:    "show_robots W<id> - Lists all robots in warehouse W<id>.",
-	CmdMoveRobot:     "move_robot W<id> R<id> <cmds> - Commands robot R<id>. Cmds: N, S, E, W, NE, NW, SE, SW, G, D.",
-	CmdAddCrate:      "add_crate W<id> x y - Adds a crate to (x, y) in a crate-enabled warehouse.",
-	CmdShowCrates:    "show_crates W<id> - Lists all crate locations in the warehouse.",
-	CmdShowGrid:      "show_grid W<id> - Displays robot and crate grid layout.",
-	CmdShowTasks:     "show_tasks W<id> R<id> - Shows tasks for robot R<id>.",
-	CmdCancelTask:    "cancel_task W<id> R<id> TASKID - Cancels task for robot.",
+	CmdAddWarehouse:  	MsgUsageAddWarehouse,
+	CmdShowWarehouse: 	MsgUsageShowWarehouse,
+	CmdAddRobot:      MsgUsageAddRobot,
+	CmdShowRobots:    MsgUsageShowRobots,
+	CmdMoveRobot:     MsgUsageMoveRobot,
+	CmdAddCrate:      MsgUsageAddCrate,
+	CmdShowCrates:    MsgUsageShowCrates,
+	CmdShowGrid:      MsgUsageShowGrid,
+	CmdShowTasks:     MsgUsageShowTasks,
+	CmdCancelTask:    MsgUsageCancelTask,
 	CmdHelp:           "help [command] - Displays help for all or a specific command.",
 	CmdExit:          "exit - Exits the program.",
 }

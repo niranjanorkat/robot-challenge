@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	MsgShowTasksUsage   = "Usage: show_tasks W<id> R<id>"
-	MsgCancelTaskUsage  = "Usage: cancel_task W<id> R<id> TASKID"
-	MsgNoTasks          = "No active tasks."
-	MsgCancelFailed     = "Failed to cancel task:"
-	MsgCancelSuccess    = "Task cancelled successfully."
+	MsgShowTasksUsage  = "show_tasks W<id> R<id> - Shows tasks for robot R<id>."
+	MsgCancelTaskUsage = "cancel_task W<id> R<id> TASKID - Cancels task for robot."
+	
+	MsgNoTasks       = "No active tasks."
+	MsgCancelFailed  = "Failed to cancel task:"
+	MsgCancelSuccess = "Task cancelled successfully."
 )
 
 func handleTaskCommands(parts []string) bool {

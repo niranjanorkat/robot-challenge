@@ -9,10 +9,15 @@ import (
 var warehouses []librobot.Warehouse
 
 const (
+	MsgUsageAddWarehouse = "add_warehouse [type] - Adds a warehouse. Type: 'n' (normal) or 'c' (crate-enabled). Defaults to 'n'."
+	MsgUsageShowWarehouse = "show_warehouse - Lists all warehouses with their type."
 	MsgWarehouseAdded   = "Warehouse added successfully."
 	MsgNoWarehouses     = "No warehouses available."
 	MsgCurrentWarehouses = "Current Warehouses:"
 	MsgInvalidWarehouseID = "Invalid warehouse ID."
+	MsgNormalWarehouseAdded = "Normal warehouse added."
+	MsgCrateWarehouseAdded = "Crate-enabled warehouse added."
+	MsgUnknownWarehouseType = "Unknown warehouse type. Use 'n' for normal or 'c' for crate-enabled."
 )
 
 func handleWarehouseCommands(parts []string) bool {
@@ -27,12 +32,12 @@ func handleWarehouseCommands(parts []string) bool {
 		switch warehouseType {
 		case "n", "":
 			warehouses = append(warehouses, librobot.NewWarehouse())
-			fmt.Println("Normal warehouse added.")
+			fmt.Println(MsgNormalWarehouseAdded)
 		case "c":
 			warehouses = append(warehouses, librobot.NewCrateWarehouse())
-			fmt.Println("Crate-enabled warehouse added.")
+			fmt.Println(MsgCrateWarehouseAdded)
 		default:
-			fmt.Println("Unknown warehouse type. Use 'n' for normal or 'c' for crate-enabled.")
+			fmt.Println(MsgUnknownWarehouseType)
 		}
 
 	case CmdShowWarehouse:

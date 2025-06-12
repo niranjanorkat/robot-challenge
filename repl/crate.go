@@ -9,13 +9,19 @@ import (
 )
 
 const (
+	MsgUsageAddCrate = "add_crate W<id> x y - Adds a crate to (x, y) in a crate-enabled warehouse."
+	MsgUsageShowCrates = "show_crates W<id> - Lists all crate locations in the warehouse."
 	MsgCrateAdded       = "Crate added successfully."
-	MsgInvalidAddCrate  = "Usage: add_crate W<id> x y"
 	MsgCrateError       = "Error adding crate:"
-	MsgInvalidShowCrate = "Usage: show_crates W<id>"
 	MsgCrateListHeader  = "Crates in warehouse:"
 	MsgNoCrates         = "No crates in this warehouse."
 	MsgNotCrateWarehouse = "This warehouse does not support crates."
+	MsgCrateLocation    = "- Crate at (x=%d, y=%d)\n"
+)
+
+var (
+	MsgInvalidAddCrate  = "Invalid add_crate command. Usage: " + MsgUsageAddCrate
+	MsgInvalidShowCrate = "Invalid show_crates command. Usage: " + MsgUsageShowCrates
 )
 
 func handleCrateCommands(parts []string) bool {
@@ -64,7 +70,7 @@ func handleCrateCommands(parts []string) bool {
 		for x := 0; x < 10; x++ {
 			for y := 0; y < 10; y++ {
 				if cw.HasCrate(uint(x), uint(y)) {
-					fmt.Printf("- Crate at (x=%d, y=%d)\n", x, y)
+					fmt.Printf(MsgCrateLocation, x, y)
 					found = true
 				}
 			}

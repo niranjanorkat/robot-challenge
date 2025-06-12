@@ -9,7 +9,15 @@ import (
 )
 
 const (
-	MsgInvalidShowGrid = "Usage: show_grid W<id>"
+	MsgUsageShowGrid     = "show_grid W<id> - Displays robot and crate grid layout."
+	MsgInvalidShowGrid   = "Invalid show_grid command. Usage: " + MsgUsageShowGrid
+	MsgRobotGridHeader   = "Robot Grid"
+	MsgCrateGridHeader   = "Crate Grid"
+	MsgGridEmptyCell     = "."
+	MsgGridOriginCell    = "O"
+	MsgGridCrateCell     = "C"
+	MsgGridRobotPrefix   = "R"
+	MsgGridDiagonalPrefix = "D"
 )
 
 func handleGridCommands(parts []string) bool {
@@ -31,23 +39,23 @@ func handleGridCommands(parts []string) bool {
 	robotGrid := [10][10]string{}
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 10; x++ {
-			robotGrid[y][x] = "."
+			robotGrid[y][x] = MsgGridEmptyCell
 		}
 	}
 	for i, r := range warehouse.Robots() {
 		state := r.CurrentState()
-		label := fmt.Sprintf("R%d", i+1)
+		label := fmt.Sprintf("%s%d", MsgGridRobotPrefix, i+1)
 		if strings.HasPrefix(fmt.Sprintf("%T", r), "*librobot.diagonalRobot") {
-			label = fmt.Sprintf("D%d", i+1)
+			label = fmt.Sprintf("%s%d", MsgGridDiagonalPrefix, i+1)
 		}
 		if state.X < 10 && state.Y < 10 {
 			robotGrid[state.Y][state.X] = label
 		}
 	}
-	robotGrid[0][0] = "O"
+	robotGrid[0][0] = MsgGridOriginCell
 
 	// Print robot grid first
-	fmt.Println("Robot Grid")
+	fmt.Println(MsgRobotGridHeader)
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 10; x++ {
 			fmt.Printf("%-3s", robotGrid[y][x])
@@ -57,18 +65,18 @@ func handleGridCommands(parts []string) bool {
 
 	// Only show crate grid if it's a crate warehouse
 	if cw, ok := warehouse.(librobot.CrateWarehouse); ok {
-		fmt.Println("\nCrate Grid")
+		fmt.Printf("\n%s\n", MsgCrateGridHeader)
 		crateGrid := [10][10]string{}
 		for y := 0; y < 10; y++ {
 			for x := 0; x < 10; x++ {
 				if cw.HasCrate(uint(x), uint(y)) {
-					crateGrid[y][x] = "C"
+					crateGrid[y][x] = MsgGridCrateCell
 				} else {
-					crateGrid[y][x] = "."
+					crateGrid[y][x] = MsgGridEmptyCell
 				}
 			}
 		}
-		crateGrid[0][0] = "O"
+		crateGrid[0][0] = MsgGridOriginCell
 
 		for y := 0; y < 10; y++ {
 			for x := 0; x < 10; x++ {

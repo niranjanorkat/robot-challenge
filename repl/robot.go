@@ -7,14 +7,17 @@ import (
 )
 
 const (
+	MsgUsageAddRobot    = "add_robot W<id> [type] - Adds robot to warehouse W<id>. Type: 'N' (normal) or 'D' (diagonal)."
+	MsgUsageShowRobots  = "show_robots W<id> - Lists all robots in warehouse W<id>."
+	MsgUsageMoveRobot   = "move_robot W<id> R<id> <cmds> - Commands robot R<id>. Cmds: N, S, E, W, NE, NW, SE, SW, G, D."
 	MsgRobotAdded       = "Robot added to warehouse."
 	MsgRobotListHeader  = "Robots in warehouse:"
 	MsgInvalidRobotID   = "Invalid robot ID."
-	MsgInvalidAddRobot  = "Usage: add_robot W<id> [type]"
-	MsgInvalidShowRobots = "Usage: show_robots W<id>"
-	MsgInvalidMove      = "Usage: move_robot W<id> R<id> <command_sequence>"
 	MsgMoveSuccess      = "Move command sent successfully."
 	MsgMoveError        = "Error sending move command:"
+	MsgNoRobots         = "No robots in this warehouse."
+	MsgErrorAddingRobot = "Error adding robot:"
+	MsgRobotPosition    = "R%d → (x=%d, y=%d)\n"
 )
 
 func handleRobotCommands(parts []string) bool {
@@ -37,7 +40,7 @@ func handleRobotCommands(parts []string) bool {
 		}
 		_, err = warehouses[wID-1].AddRobot(robotType)
 		if err != nil {
-			fmt.Println("Error adding robot:", err)
+			fmt.Println(MsgErrorAddingRobot, err)
 		} else {
 			fmt.Println(MsgRobotAdded)
 		}
@@ -55,13 +58,13 @@ func handleRobotCommands(parts []string) bool {
 		}
 		robots := warehouses[wID-1].Robots()
 		if len(robots) == 0 {
-			fmt.Println("No robots in this warehouse.")
+			fmt.Println(MsgNoRobots)
 			return true
 		}
 		fmt.Println(MsgRobotListHeader)
 		for i, r := range robots {
 			state := r.CurrentState()
-			fmt.Printf("R%d → (x=%d, y=%d)\n", i+1, state.X, state.Y)
+			fmt.Printf(MsgRobotPosition, i+1, state.X, state.Y)
 		}
 		return true
 
