@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io"
 
 	"github.com/niranjanorkat/robot-challenge/librobot"
 )
@@ -57,7 +58,8 @@ func handleGridCommands(parts []string) bool {
 			printGrid(wID)
 			time.Sleep(1 * time.Second)
 
-			if isEOF(reader) {
+			_, err := reader.ReadString('\n')
+			if err == io.EOF {
 				break
 			}
 		}
@@ -122,20 +124,3 @@ func printGrid(wID int) {
 	}
 }
 
-func isEOF(reader *bufio.Reader) bool {
-	readerReady := false
-	ch := make(chan struct{})
-	go func() {
-		_, err := reader.Peek(1)
-		if err != nil {
-			readerReady = true
-		}
-		close(ch)
-	}()
-	select {
-	case <-ch:
-		return readerReady
-	case <-time.After(10 * time.Millisecond):
-		return false
-	}
-}
