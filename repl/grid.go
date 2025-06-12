@@ -14,7 +14,6 @@ import (
 // ─── Grid Constants ────────────────────────────────────────────
 
 const (
-	GridSize             = 10
 	MsgUsageShowGrid     = "show_grid W<id> [live] - Displays robot and crate grid layout. Add 'live' to watch."
 	MsgInvalidShowGrid   = "Invalid show_grid command. Usage: " + MsgUsageShowGrid
 	MsgInvalidWarehouse  = "Invalid warehouse ID."
@@ -90,7 +89,7 @@ func printGrid(warehouse librobot.Warehouse) {
 	robotGrid := newEmptyGrid()
 	for i, r := range warehouse.Robots() {
 		state := r.CurrentState()
-		if state.X >= GridSize || state.Y >= GridSize {
+		if state.X >= librobot.WAREHOUSE_WIDTH || state.Y >= librobot.WAREHOUSE_HEIGHT {
 			continue
 		}
 
@@ -109,8 +108,8 @@ func printGrid(warehouse librobot.Warehouse) {
 	if cw, ok := warehouse.(librobot.CrateWarehouse); ok {
 		fmt.Printf("\n%s\n", MsgCrateGridHeader)
 		crateGrid := newEmptyGrid()
-		for y := 0; y < GridSize; y++ {
-			for x := 0; x < GridSize; x++ {
+		for y := 0; y < librobot.WAREHOUSE_HEIGHT; y++ {
+			for x := 0; x < librobot.WAREHOUSE_WIDTH; x++ {
 				if cw.HasCrate(uint(x), uint(y)) {
 					crateGrid[y][x] = MsgGridCrate
 				}
@@ -122,19 +121,19 @@ func printGrid(warehouse librobot.Warehouse) {
 }
 
 
-func newEmptyGrid() [GridSize][GridSize]string {
-	var grid [GridSize][GridSize]string
-	for y := 0; y < GridSize; y++ {
-		for x := 0; x < GridSize; x++ {
+func newEmptyGrid() [librobot.WAREHOUSE_HEIGHT][librobot.WAREHOUSE_WIDTH]string {
+	var grid [librobot.WAREHOUSE_HEIGHT][librobot.WAREHOUSE_WIDTH]string
+	for y := 0; y < librobot.WAREHOUSE_HEIGHT; y++ {
+		for x := 0; x < librobot.WAREHOUSE_WIDTH; x++ {
 			grid[y][x] = MsgGridEmpty
 		}
 	}
 	return grid
 }
 
-func printGridMatrix(grid [GridSize][GridSize]string) {
-	for y := 0; y < GridSize; y++ {
-		for x := 0; x < GridSize; x++ {
+func printGridMatrix(grid [librobot.WAREHOUSE_HEIGHT][librobot.WAREHOUSE_WIDTH]string) {
+	for y := 0; y < librobot.WAREHOUSE_HEIGHT; y++ {
+		for x := 0; x < librobot.WAREHOUSE_WIDTH; x++ {
 			fmt.Printf("%-3s", grid[y][x])
 		}
 		fmt.Println()
