@@ -10,7 +10,6 @@ import (
 
 	"github.com/niranjanorkat/robot-challenge/librobot"
 )
-	"bufio"
 
 const (
 	MsgUsageShowGrid      = "show_grid W<id> [live] - Displays robot and crate grid layout. Add 'live' to watch."
