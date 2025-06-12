@@ -1,7 +1,9 @@
 package librobot
+
 import (
 	"sync"
 )
+
 type DiagonalRobot interface {
 	Robot
 }
@@ -10,7 +12,8 @@ type diagonalRobot struct {
 	*robot
 }
 
-// NewDiagonalRobot constructs a diagonal-capable robot at position (0,0)
+// ─── Constructor ─────────────────────────────────────────────
+
 func NewDiagonalRobot(id string, wh Warehouse) Robot {
 	r := &diagonalRobot{
 		robot: &robot{
@@ -26,10 +29,11 @@ func NewDiagonalRobot(id string, wh Warehouse) Robot {
 	return r
 }
 
-// EnqueueTask processes commands with support for diagonal, normal, and crate movements.
+// ─── Public Methods ──────────────────────────────────────────
+
 func (r *diagonalRobot) EnqueueTask(commands string) string {
-	tokens := tokenizeCommands(commands)
-	taskID := randomTaskID()
+	tokens := tokenizeDiagonalMoves(commands)
+	taskID := generateTaskID()
 
 	t := &task{
 		id:         taskID,
@@ -44,14 +48,6 @@ func (r *diagonalRobot) EnqueueTask(commands string) string {
 	return taskID
 }
 
-func (r *diagonalRobot) taskProcessor() {
-	for t := range r.taskQueue {
-		status := runMovement(r.robot, t.commands, t.stop, handleNormal, handleCrate, handleDiagonal)
-		t.status = status
-		r.activeTasks.Delete(t.id)
-	}
-}
-
 func (r *diagonalRobot) CancelTask(taskID string) error {
 	return r.robot.CancelTask(taskID)
 }
@@ -64,8 +60,18 @@ func (r *diagonalRobot) GetActiveTasks() []TaskInfo {
 	return r.robot.GetActiveTasks()
 }
 
-func tokenizeCommands(input string) []string {
-	result := []string{}
+// ─── Internal Processor and Helpers ──────────────────────────
+
+func (r *diagonalRobot) taskProcessor() {
+	for t := range r.taskQueue {
+		status := runMovement(r.robot, t.commands, t.stop, handleNormal, handleCrate, handleDiagonal)
+		t.status = status
+		r.activeTasks.Delete(t.id)
+	}
+}
+
+func tokenizeDiagonalMoves(input string) []string {
+	var result []string
 	i := 0
 	for i < len(input) {
 		if i+1 < len(input) {

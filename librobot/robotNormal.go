@@ -1,16 +1,10 @@
 package librobot
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"sync"
 	"fmt"
 )
-const (
-	TaskStatusOngoing   = "ongoing"
-	TaskStatusSuccessful = "successful"
-	TaskStatusAborted   = "aborted"
-)
+
 type Robot interface {
 	EnqueueTask(commands string) (taskID string)
 	CancelTask(taskID string) error
@@ -21,30 +15,19 @@ type Robot interface {
 type RobotState struct {
 	X        uint
 	Y        uint
-	HasCrate bool
 }
 
 type robot struct {
-	id        string
-	x, y      uint
-	hasCrate  bool
-	wh        Warehouse
-	taskQueue chan task
-	stepLock  sync.Mutex
+	id          string
+	x, y        uint
+	isCarryingCrate    bool
+	wh          Warehouse
+	taskQueue   chan task
+	stepLock    sync.Mutex
 	activeTasks sync.Map
 }
-type TaskInfo struct {
-	ID          string
-	Status      string
-	RawCommand  string
-}
-type task struct {
-	id         string
-	commands   []string
-	rawCommand string
-	status     string
-	stop       chan struct{}
-}
+
+// ─── Constructor ─────────────────────────────────────────────
 
 func NewRobot(id string, wh Warehouse) Robot {
 	r := &robot{
@@ -58,13 +41,15 @@ func NewRobot(id string, wh Warehouse) Robot {
 	return r
 }
 
+// ─── Public Methods ──────────────────────────────────────────
+
 func (r *robot) EnqueueTask(commands string) string {
 	tokens := make([]string, len(commands))
 	for i, c := range commands {
 		tokens[i] = string(c)
 	}
 
-	taskID := randomTaskID()
+	taskID := generateTaskID()
 	t := &task{
 		id:         taskID,
 		commands:   tokens,
@@ -77,13 +62,6 @@ func (r *robot) EnqueueTask(commands string) string {
 	return taskID
 }
 
-func (r *robot) taskProcessor() {
-	for t := range r.taskQueue {
-		status := runMovement(r, t.commands, t.stop, handleNormal, handleCrate)
-		t.status = status
-		r.activeTasks.Delete(t.id)
-	}
-}
 func (r *robot) CancelTask(taskID string) error {
 	if val, ok := r.activeTasks.Load(taskID); ok {
 		t := val.(*task)
@@ -99,16 +77,6 @@ func (r *robot) CancelTask(taskID string) error {
 	return fmt.Errorf("task %s not found", taskID)
 }
 
-func (r *robot) CurrentState() RobotState {
-	return RobotState{X: r.x, Y: r.y, HasCrate: r.hasCrate}
-}
-
-func randomTaskID() string {
-	b := make([]byte, 4)
-	_, _ = rand.Read(b)
-	return hex.EncodeToString(b)
-}
-
 func (r *robot) GetActiveTasks() []TaskInfo {
 	var infos []TaskInfo
 	r.activeTasks.Range(func(_, v any) bool {
@@ -121,4 +89,18 @@ func (r *robot) GetActiveTasks() []TaskInfo {
 		return true
 	})
 	return infos
+}
+
+func (r *robot) CurrentState() RobotState {
+	return RobotState{X: r.x, Y: r.y}
+}
+
+// ─── Internal Processor ──────────────────────────────────────
+
+func (r *robot) taskProcessor() {
+	for t := range r.taskQueue {
+		status := runMovement(r, t.commands, t.stop, handleNormal, handleCrate)
+		t.status = status
+		r.activeTasks.Delete(t.id)
+	}
 }

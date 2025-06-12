@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// ─── Interface ───────────────────────────────────────────────
+
 type CrateWarehouse interface {
 	Warehouse
 	AddCrate(x uint, y uint) error
@@ -11,25 +13,30 @@ type CrateWarehouse interface {
 	HasCrate(x uint, y uint) bool
 }
 
+// ─── Implementation ──────────────────────────────────────────
+
 type crateWarehouse struct {
 	*warehouse
-	crates map[[2]uint]bool // Separate occupied map for crates
+	crates map[[2]uint]bool // crate location map
 }
 
-// NewCrateWarehouse creates a new crate-enabled warehouse.
+// ─── Constructor ─────────────────────────────────────────────
+
 func NewCrateWarehouse() CrateWarehouse {
 	return &crateWarehouse{
 		warehouse: &warehouse{
-			robots:        []Robot{},
-			occupied:      make(map[Position]bool),
+			robots:   []Robot{},
+			occupied: make(map[Position]bool),
 		},
 		crates: make(map[[2]uint]bool),
 	}
 }
 
+// ─── Public Methods ──────────────────────────────────────────
+
 func (cw *crateWarehouse) AddRobot(robotType string) (Robot, error) {
 	id := fmt.Sprintf("R%d", len(cw.robots)+1)
-	r, err:= CreateRobot(robotType, id, cw)
+	r, err := CreateRobot(robotType, id, cw)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +44,6 @@ func (cw *crateWarehouse) AddRobot(robotType string) (Robot, error) {
 	return r, nil
 }
 
-// AddCrate places a crate at a given position.
 func (cw *crateWarehouse) AddCrate(x, y uint) error {
 	pos := [2]uint{x, y}
 	if cw.crates[pos] {
@@ -47,7 +53,6 @@ func (cw *crateWarehouse) AddCrate(x, y uint) error {
 	return nil
 }
 
-// DelCrate removes a crate from a given position.
 func (cw *crateWarehouse) DelCrate(x, y uint) error {
 	pos := [2]uint{x, y}
 	if !cw.crates[pos] {
@@ -57,7 +62,6 @@ func (cw *crateWarehouse) DelCrate(x, y uint) error {
 	return nil
 }
 
-// HasCrate checks if a crate exists at the position.
 func (cw *crateWarehouse) HasCrate(x, y uint) bool {
 	return cw.crates[[2]uint{x, y}]
 }

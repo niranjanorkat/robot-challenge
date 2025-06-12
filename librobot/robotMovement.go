@@ -4,13 +4,20 @@ import (
 	"time"
 )
 
+// ─── Warehouse Dimensions ────────────────────────────────────
+
 const (
 	WAREHOUSE_WIDTH  = 10
 	WAREHOUSE_HEIGHT = 10
 )
 
-type MovementHandler func(r *robot, c string) (moved bool)
+// ─── Movement Handler Type ───────────────────────────────────
 
+type movementHandler func(r *robot, c string) bool
+
+// ─── Movement Strategies ─────────────────────────────────────
+
+// Handle cardinal directions (N, S, E, W)
 func handleNormal(r *robot, c string) bool {
 	newX, newY := r.x, r.y
 	switch c {
@@ -42,30 +49,31 @@ func handleNormal(r *robot, c string) bool {
 		return false
 	}
 
-	if r.wh.IsOccupied(newX, newY) {
+	if r.wh.isOccupied(newX, newY) {
 		return false
 	}
 
-	r.wh.UpdatePosition(r.x, r.y, newX, newY)
+	r.wh.updatePosition(r.x, r.y, newX, newY)
 	r.x, r.y = newX, newY
 	return true
 }
 
+// Handle crate pickup (G) and drop (D)
 func handleCrate(r *robot, c string) bool {
 	switch c {
 	case "G":
-		if !r.hasCrate {
+		if !r.isCarryingCrate {
 			if cw, ok := r.wh.(CrateWarehouse); ok && cw.HasCrate(r.x, r.y) {
 				cw.DelCrate(r.x, r.y)
-				r.hasCrate = true
+				r.isCarryingCrate = true
 				return true
 			}
 		}
 	case "D":
-		if r.hasCrate {
+		if r.isCarryingCrate {
 			if cw, ok := r.wh.(CrateWarehouse); ok && !cw.HasCrate(r.x, r.y) {
 				cw.AddCrate(r.x, r.y)
-				r.hasCrate = false
+				r.isCarryingCrate = false
 				return true
 			}
 		}
@@ -73,6 +81,7 @@ func handleCrate(r *robot, c string) bool {
 	return false
 }
 
+// Handle diagonal movements (NE, NW, SE, SW)
 func handleDiagonal(r *robot, c string) bool {
 	newX, newY := r.x, r.y
 	switch c {
@@ -95,22 +104,26 @@ func handleDiagonal(r *robot, c string) bool {
 	if newX >= WAREHOUSE_WIDTH || newY >= WAREHOUSE_HEIGHT {
 		return false
 	}
-	if r.wh.IsOccupied(newX, newY) {
+	if r.wh.isOccupied(newX, newY) {
 		return false
 	}
 
-	r.wh.UpdatePosition(r.x, r.y, newX, newY)
+	r.wh.updatePosition(r.x, r.y, newX, newY)
 	r.x, r.y = newX, newY
 	return true
 }
 
-func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...MovementHandler) string {
+// ─── Movement Executor ───────────────────────────────────────
+
+// Executes a sequence of commands with one-second delay and cancel support.
+func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...movementHandler) string {
 	for _, c := range commands {
 		select {
 		case <-stop:
 			return TaskStatusAborted
 		default:
 			time.Sleep(1 * time.Second)
+
 			r.stepLock.Lock()
 			isValidMove := false
 			for _, h := range handlers {
@@ -120,6 +133,7 @@ func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...
 				}
 			}
 			r.stepLock.Unlock()
+
 			if !isValidMove {
 				return TaskStatusAborted
 			}
