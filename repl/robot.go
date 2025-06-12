@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"github.com/niranjanorkat/robot-challenge/librobot"
+
 )
 
 const (
@@ -59,7 +61,7 @@ func handleRobotCommands(parts []string) bool {
 			fmt.Println(MsgInvalidShowRobots)
 			return true
 		}
-
+	
 		wIDStr := strings.TrimPrefix(parts[1], "W")
 		wID, err := strconv.Atoi(wIDStr)
 		isInvalidWarehouse := err != nil || !validWarehouseID(wID)
@@ -67,17 +69,21 @@ func handleRobotCommands(parts []string) bool {
 			fmt.Println(MsgInvalidWarehouseID)
 			return true
 		}
-
+	
 		robots := warehouses[wID-1].Robots()
 		if len(robots) == 0 {
 			fmt.Println(MsgNoRobots)
 			return true
 		}
-
+	
 		fmt.Println(MsgRobotListHeader)
 		for i, r := range robots {
 			state := r.CurrentState()
-			fmt.Printf(MsgRobotPosition, i+1, state.X, state.Y)
+			robotType := "N"
+			if _, ok := r.(librobot.DiagonalRobot); ok {
+				robotType = "D"
+			}
+			fmt.Printf("R%d [%s] → (x=%d, y=%d)\n", i+1, robotType, state.X, state.Y)
 		}
 		return true
 

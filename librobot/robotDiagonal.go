@@ -8,6 +8,7 @@ import (
 // It behaves like a regular Robot but can also interpret and execute diagonal commands like "NE", "NW", "SE", and "SW".
 type DiagonalRobot interface {
 	Robot
+	IsDiagonal() bool
 }
 
 type diagonalRobot struct {
@@ -57,6 +58,10 @@ func (r *diagonalRobot) CurrentState() RobotState {
 
 func (r *diagonalRobot) GetActiveTasks() []TaskInfo {
 	return r.robot.GetActiveTasks()
+}
+
+func (r *diagonalRobot) IsDiagonal() bool {
+	return true
 }
 
 func (r *diagonalRobot) taskProcessor() {
