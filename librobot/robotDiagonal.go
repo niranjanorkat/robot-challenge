@@ -19,31 +19,26 @@ func NewDiagonalRobot(id string, wh Warehouse) Robot {
 			taskQueue: make(chan task, 100),
 		},
 	}
-	r.taskProcessor()
+	go r.taskProcessor()
 	return r
 }
 
 // EnqueueTask processes commands with support for diagonal, normal, and crate movements.
-func (r *diagonalRobot) EnqueueTask(commands string) (string, chan RobotState, chan error) {
+func (r *diagonalRobot) EnqueueTask(commands string) (string) {
 	tokens := tokenizeCommands(commands)
 
 	taskID := randomTaskID()
-	posCh := make(chan RobotState)
-	errCh := make(chan error, 1)
-
 	r.taskQueue <- task{
 		id:       taskID,
 		commands: tokens,
-		posCh:    posCh,
-		errCh:    errCh,
 	}
 
-	return taskID, posCh, errCh
+	return taskID
 }
 
 func (r *diagonalRobot) taskProcessor() {
 	for t := range r.taskQueue {
-		runMovement(r.robot, t.commands, t.posCh, t.errCh, handleNormal, handleCrate, handleDiagonal)
+		runMovement(r.robot, t.commands, handleNormal, handleCrate, handleDiagonal)
 	}
 }
 

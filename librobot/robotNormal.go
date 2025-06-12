@@ -7,7 +7,7 @@ import (
 )
 
 type Robot interface {
-	EnqueueTask(commands string) (taskID string, position chan RobotState, err chan error)
+	EnqueueTask(commands string) (taskID string)
 	CancelTask(taskID string) error
 	CurrentState() RobotState
 }
@@ -46,29 +46,25 @@ func NewRobot(id string, wh Warehouse) Robot {
 	return r
 }
 
-func (r *robot) EnqueueTask(commands string) (string, chan RobotState, chan error) {
+func (r *robot) EnqueueTask(commands string) (string) {
 	tokens := make([]string, len(commands))
 	for i, c := range commands {
 		tokens[i] = string(c)
 	}
 
 	taskID := randomTaskID()
-	posCh := make(chan RobotState)
-	errCh := make(chan error, 1)
 
 	r.taskQueue <- task{
 		id:       taskID,
 		commands: tokens,
-		posCh:    posCh,
-		errCh:    errCh,
 	}
 
-	return taskID, posCh, errCh
+	return taskID
 }
 
 func (r *robot) taskProcessor() {
 	for t := range r.taskQueue {
-		runMovement(r, t.commands, t.posCh, t.errCh, handleNormal, handleCrate)
+		runMovement(r, t.commands, handleNormal, handleCrate)
 	}
 }
 
