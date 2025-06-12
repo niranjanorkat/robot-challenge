@@ -62,7 +62,6 @@ func (w *warehouse) SendCommand(robotIndex int, command string) error {
 	return nil
 }
 
-// ─── Internal Helpers ────────────────────────────────────────
 
 func (w *warehouse) isOccupied(x, y uint) bool {
 	return w.occupied[Position{X: x, Y: y}]
