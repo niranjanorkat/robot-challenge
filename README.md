@@ -59,9 +59,10 @@ rcli>
 
 ### Grid & Visualization
 
-| Command             | Description                             |
-|---------------------|-----------------------------------------|
-| `show_grid W<id>`   | Display robot and crate grid            |
+| Command                  | Description                                                   |
+|--------------------------|---------------------------------------------------------------|
+| `show_grid W<id>`        | Display the current robot and crate grid snapshot             |
+| `show_grid W<id> live`   | Continuously update the grid every second until Ctrl+D is pressed |
 
 ### Task Management
 
