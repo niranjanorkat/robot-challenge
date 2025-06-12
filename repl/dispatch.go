@@ -18,7 +18,8 @@ func HandleCommand(parts []string) bool {
 			handleCrateCommands(parts) ||
 			handleRobotCommands(parts) ||
 			handleGridCommands(parts) ||
-			handleTaskCommands(parts) {
+			handleTaskCommands(parts) || 
+			handleHelpCommands(parts) {
 			return false
 		}
 		fmt.Println("Unknown command. Try:", AllCommands())

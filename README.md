@@ -1,28 +1,109 @@
-# Robot Warehouse
+# 🦾 Robot Simulator CLI
 
-## Scenario
+A command-line simulator to manage warehouses and robots, allowing you to enqueue tasks, move robots, manage crates, and view a visual grid representation of the warehouse.
 
-We are installing a new type of robot into our (hypothetical) warehouse as part of an automation project.  As part of this project, there are various software components which need to be developed.
+---
 
-## About the Robots
+## 📦 Features
 
-For convenience the robot moves along a grid in the roof of the warehouse and we have made sure that all of our warehouses are built so that the dimensions of the grid are 10 by 10; objects in the warehouse, including the robots, are always aligned with the grid, so object locations' may be treated as integer coordinates.  We've also made sure that all our warehouses are aligned along north-south and east-west axes. The system operates on a cartesian coordinate map that aligns to the warehouse's physical dimensions: point (0, 0) indicates the most south-west and (10, 10) indicates the most north-east.
+- Add and view **normal** or **crate-enabled** warehouses.
+- Add robots of various types (`N` for normal, `D` for diagonal).
+- Assign movement tasks to robots (e.g. `N`, `E`, `S`, `W`, `G`, `D`).
+- View the current robot and crate positions using a visual **grid**.
+- Cancel active robot tasks and view task status.
+- Show all robots and crates in a warehouse.
 
-Each robot operates by being given 'tasks' which each consist of a string of 'commands':
+---
 
-All of the commands to the robot consist of a single capital letter and different commands are optionally delineated by whitespace.
+## 🛠️ Usage
 
-The robot should accept the following commands:
+Run the REPL using:
 
-- N move one unit north
-- W move one unit west
-- E move one unit east
-- S move one unit south
+```bash
+go run main.go
+```
 
-Example command sequences:
+You'll enter a prompt like this:
 
-* The command sequence: `"N E S W"` will move the robot in a full square, returning it to where it started.
+```bash
+Robot Simulator CLI
+Commands: add_warehouse, show_warehouse, ...
+rcli>
+```
 
-* If the robot starts in the south-west corner of the warehouse then the following commands will move it to the middle of the warehouse: `"N E N E N E N E"`
+---
 
-The robot will only perform a single task at a time: if additional tasks are given to the robot while is busy performing a task, those additional tasks are queued up, and will be executed once the preceding task is completed (or aborted for some reason).  Each task is identified with a unique string ID, and a task which is either in progress or enqueued can be aborted/cancelled at any time.  If the robot is unable to execute a particular command (for instance, because the command would cause the robot to run into the edges of the warehouse grid) then an error occurs, and the entire task is aborted.
+## 🧾 Command Reference
+
+### Warehouse Management
+
+| Command                        | Description                                      |
+|-------------------------------|--------------------------------------------------|
+| `add_warehouse [type]`        | Add warehouse of type `n` (default) or `c`       |
+| `show_warehouse`              | Show all added warehouses                        |
+
+### Robot Management
+
+| Command                            | Description                                      |
+|------------------------------------|--------------------------------------------------|
+| `add_robot W<id> [type]`           | Add robot to warehouse. Type: `N` or `D`         |
+| `show_robots W<id>`                | List robots in a warehouse                       |
+| `move_robot W<id> R<id> <cmds>`    | Send movement commands (e.g. `N S E E G`)            |
+
+### Crate Management
+
+| Command                             | Description                                         |
+|-------------------------------------|-----------------------------------------------------|
+| `add_crate W<id> x y`               | Add crate to `(x, y)` of crate-enabled warehouse    |
+| `show_crates W<id>`                 | List crates in warehouse                           |
+
+### Grid & Visualization
+
+| Command             | Description                             |
+|---------------------|-----------------------------------------|
+| `show_grid W<id>`   | Display robot and crate grid            |
+
+### Task Management
+
+| Command                              | Description                                      |
+|--------------------------------------|--------------------------------------------------|
+| `show_tasks W<id> R<id>`             | View active tasks for a robot                    |
+| `cancel_task W<id> R<id> <task_id>`  | Cancel a specific robot task                    |
+
+### System
+
+| Command    | Description       |
+|------------|-------------------|
+| `exit`     | Exit the program  |
+
+---
+
+## 📌 Notes
+
+- Warehouses are 10x10 grids.
+- Only crate-enabled warehouses support `add_crate` or display crate grids.
+- Diagonal robots support diagonals like `NE`, `SW` if implemented.
+- Commands like `G` (grab crate) or `D` (drop crate) only work on crate-enabled grids.
+
+---
+
+## 🧪 Example
+
+```bash
+rcli> add_warehouse c
+Crate-enabled warehouse added.
+rcli> add_robot W1 N
+Robot added to warehouse.
+rcli> move_robot W1 R1 NEEGDD
+Move command sent successfully.
+rcli> show_grid W1
+Robot Grid:
+. . R1 . . . . . . .
+...
+
+Crate Grid:
+. . C . . . . . . .
+...
+```
+
+---

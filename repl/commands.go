@@ -22,6 +22,9 @@ const (
 	CmdShowTasks  = "show_tasks"
 	CmdCancelTask = "cancel_task"
 
+	// Help
+	CmdHelp = "help"
+
 	// Exit
 	CmdExit = "exit"
 )
@@ -37,6 +40,7 @@ func AllCommands() string {
 		CmdShowGrid,
 		CmdShowTasks,
 		CmdCancelTask,
+		CmdHelp,
 		CmdExit,
 	}, ", ")
 }
