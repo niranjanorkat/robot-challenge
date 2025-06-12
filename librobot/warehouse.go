@@ -2,13 +2,15 @@ package librobot
 
 import (
 	"fmt"
+
 )
+
 type Warehouse interface {
 	Robots() []Robot
-	AddRobot()(Robot, error)
+	AddRobot(robotType string)(Robot, error)
 	SendCommand(robotIndex int, command string) error 
 	IsOccupied(x, y uint) bool
-	updatePosition(oldX, oldY, newX, newY uint)
+	UpdatePosition(oldX, oldY, newX, newY uint)
 }
 
 type Position struct {
@@ -31,9 +33,12 @@ func NewWarehouse() Warehouse {
 }
 
 // AddRobot adds a robot to the warehouse.
-func (w *warehouse) AddRobot() (Robot, error) {
+func (w *warehouse) AddRobot(robotType string) (Robot, error) {
 	id := fmt.Sprintf("R%d", len(w.robots)+1)
-	r := NewRobot(id, w)
+	r, err := CreateRobot(robotType, id, w)
+	if err != nil {
+		return nil, err
+	}
 	w.robots = append(w.robots, r)
 	return r, nil
 }
@@ -48,21 +53,17 @@ func (w *warehouse) SendCommand(robotIndex int, command string) error {
 	if robotIndex < 0 || robotIndex >= len(w.robots) {
 		return fmt.Errorf("invalid robot index: %d", robotIndex)
 	}
-	_, posCh, errCh := w.robots[robotIndex].EnqueueTask(command)
+	
+	w.robots[robotIndex].EnqueueTask(command)
+	return nil
 
-	// Print live updates
-	for state := range posCh {
-		fmt.Printf("Robot moved to (x=%d, y=%d)\n", state.X, state.Y)
-	}
-
-	return <-errCh
 }
 
 func (w *warehouse) IsOccupied(x, y uint) bool {
 	return w.occupied[Position{X: x, Y: y}]
 }
 
-func (w *warehouse) updatePosition(oldX, oldY, newX, newY uint) {
+func (w *warehouse) UpdatePosition(oldX, oldY, newX, newY uint) {
 	delete(w.occupied, Position{oldX, oldY})
 	w.occupied[Position{newX, newY}] = true
 }

@@ -7,7 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"drone-deploy-technical-assessment/librobot"
+
+
+	"github.com/niranjanorkat/robot-challenge/librobot"
+
 )
 
 // ─── Command Constants ────────────────────────────────────────
@@ -17,6 +20,7 @@ const (
 	CmdAddRobot      = "add_robot"
 	CmdShowRobots    = "show_robots"
 	CmdMoveRobot     = "move_robot"
+	CmdAddDRobot = "add_drobot"
 	CmdShowGrid = "show_grid"
 	CmdAddCrate     = "add_crate"
 	CmdAddCWarehouse = "add_cwarehouse"
@@ -178,13 +182,17 @@ func main() {
 				fmt.Println(MsgInvalidAddRobotArgs)
 				continue
 			}
-			wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
-			if err1 != nil || wID <= 0 || wID > len(warehouses) {
+			wID, err := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+			if err != nil || wID <= 0 || wID > len(warehouses) {
 				fmt.Println(MsgInvalidWarehouseID)
 				continue
 			}
+			var robotType string
+			if len(parts) >= 3 {
+				robotType = strings.ToUpper(parts[2])
+			}
 
-			_, err := warehouses[wID-1].AddRobot()
+			_, err = warehouses[wID-1].AddRobot(robotType)
 			if err != nil {
 				fmt.Println("Error adding robot:", err)
 			} else {
@@ -236,6 +244,8 @@ func main() {
 				fmt.Println(MsgMoveSuccess)
 			}
 		
+		
+
 		case CmdShowGrid:
 			if len(parts) != 2 {
 				fmt.Println(MsgInvalidShowGridArgs)
@@ -259,7 +269,8 @@ func main() {
 			for i, r := range warehouse.Robots() {
 				s := r.CurrentState()
 				if s.Y < 10 && s.X < 10 {
-					robotGrid[s.Y][s.X] = fmt.Sprintf("R%d", i+1)
+					prefix := "R"
+					robotGrid[s.Y][s.X] = fmt.Sprintf("%s%d", prefix, i+1)
 				}
 			}
 			for y := 0; y < 10; y++ {

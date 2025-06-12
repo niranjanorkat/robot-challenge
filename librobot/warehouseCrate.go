@@ -27,12 +27,16 @@ func NewCrateWarehouse() CrateWarehouse {
 	}
 }
 
-func (cw *crateWarehouse) AddRobot() (Robot, error) {
+func (cw *crateWarehouse) AddRobot(robotType string) (Robot, error) {
 	id := fmt.Sprintf("R%d", len(cw.robots)+1)
-	r := NewRobot(id, cw)
+	r, err:= CreateRobot(robotType, id, cw)
+	if err != nil {
+		return nil, err
+	}
 	cw.robots = append(cw.robots, r)
 	return r, nil
 }
+
 // AddCrate places a crate at a given position.
 func (cw *crateWarehouse) AddCrate(x, y uint) error {
 	pos := [2]uint{x, y}
