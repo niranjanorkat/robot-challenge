@@ -1,10 +1,10 @@
-# 🦾 Robot Simulator CLI
+# Robot Simulator CLI
 
 A command-line simulator to manage warehouses and robots, allowing you to enqueue tasks, move robots, manage crates, and view a visual grid representation of the warehouse.
 
 ---
 
-## 📦 Features
+## Features
 
 - Add and view **normal** or **crate-enabled** warehouses.
 - Add robots of various types (`N` for normal, `D` for diagonal).
@@ -15,7 +15,7 @@ A command-line simulator to manage warehouses and robots, allowing you to enqueu
 
 ---
 
-## 🛠️ Usage
+## Usage
 
 Run the REPL using:
 
@@ -25,7 +25,7 @@ go run main.go
 
 You'll enter a prompt like this:
 
-```bash
+```
 Robot Simulator CLI
 Commands: add_warehouse, show_warehouse, ...
 rcli>
@@ -33,7 +33,7 @@ rcli>
 
 ---
 
-## 🧾 Command Reference
+## Command Reference
 
 ### Warehouse Management
 
@@ -44,11 +44,11 @@ rcli>
 
 ### Robot Management
 
-| Command                            | Description                                      |
-|------------------------------------|--------------------------------------------------|
-| `add_robot W<id> [type]`           | Add robot to warehouse. Type: `N` or `D`         |
-| `show_robots W<id>`                | List robots in a warehouse                       |
-| `move_robot W<id> R<id> <cmds>`    | Send movement commands (e.g. `N S E E G`)            |
+| Command                            | Description                                         |
+|------------------------------------|-----------------------------------------------------|
+| `add_robot W<id> [type]`           | Add robot to warehouse. Type: `N` or `D`            |
+| `show_robots W<id>`                | List robots in a warehouse                          |
+| `move_robot W<id> R<id> <cmds>`    | Send movement commands (e.g. `N S E E G`)           |
 
 ### Crate Management
 
@@ -78,7 +78,7 @@ rcli>
 
 ---
 
-## 📌 Notes
+## Notes
 
 - Warehouses are 10x10 grids.
 - Only crate-enabled warehouses support `add_crate` or display crate grids.
@@ -87,7 +87,7 @@ rcli>
 
 ---
 
-## 🧪 Example
+## Example
 
 ```bash
 rcli> add_warehouse c
@@ -107,3 +107,11 @@ Crate Grid:
 ```
 
 ---
+
+## Tests
+
+To run the tests, use:
+
+```bash
+go test ./tests -v
+```
