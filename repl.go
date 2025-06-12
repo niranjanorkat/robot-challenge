@@ -25,7 +25,9 @@ const (
 	CmdAddCrate     = "add_crate"
 	CmdAddCWarehouse = "add_cwarehouse"
 	CmdShowCrates       = "show_crates"
-
+	CmdShowTasks  = "show_tasks"
+	CmdCancelTask = "cancel_task"
+	
 
 	CmdExit          = "exit"
 )
@@ -299,6 +301,57 @@ func main() {
 					}
 					fmt.Println()
 				}
+			}
+		
+		case CmdShowTasks:
+			if len(parts) != 3 {
+				fmt.Println("Usage: show_tasks W<id> R<id>")
+				continue
+			}
+			wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+			rID, err2 := strconv.Atoi(strings.TrimPrefix(parts[2], "R"))
+			if err1 != nil || wID <= 0 || wID > len(warehouses) {
+				fmt.Println(MsgInvalidWarehouseID)
+				continue
+			}
+			warehouse := warehouses[wID-1]
+			if err2 != nil || rID <= 0 || rID > len(warehouse.Robots()) {
+				fmt.Println(MsgInvalidRobotID)
+				continue
+			}
+			robot := warehouse.Robots()[rID-1]
+			tasks := robot.GetActiveTasks()
+			if len(tasks) == 0 {
+				fmt.Println("No active tasks.")
+				continue
+			}
+			fmt.Println("Active Tasks:")
+			for _, t := range tasks {
+				fmt.Printf("- ID: %s | Status: %s | Commands: %s\n", t.ID, t.Status, t.RawCommand)
+			}
+		case CmdCancelTask:
+			if len(parts) != 4 {
+				fmt.Println("Usage: cancel_task W<id> R<id> TASKID")
+				continue
+			}
+			wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+			rID, err2 := strconv.Atoi(strings.TrimPrefix(parts[2], "R"))
+			taskID := parts[3]
+			if err1 != nil || wID <= 0 || wID > len(warehouses) {
+				fmt.Println(MsgInvalidWarehouseID)
+				continue
+			}
+			warehouse := warehouses[wID-1]
+			if err2 != nil || rID <= 0 || rID > len(warehouse.Robots()) {
+				fmt.Println(MsgInvalidRobotID)
+				continue
+			}
+			robot := warehouse.Robots()[rID-1]
+			err := robot.CancelTask(taskID)
+			if err != nil {
+				fmt.Println("Failed to cancel task:", err)
+			} else {
+				fmt.Println("Task cancelled successfully.")
 			}
 		
 		// ─── Exit ───────────────────────────────────────────

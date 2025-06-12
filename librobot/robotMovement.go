@@ -104,16 +104,21 @@ func handleDiagonal(r *robot, c string) bool {
 	return true
 }
 
-func runMovement(r *robot, commands []string, handlers ...MovementHandler) {
+func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...MovementHandler) string {
 	for _, c := range commands {
-		time.Sleep(1 * time.Second)
-
-		r.stepLock.Lock()
-		for _, h := range handlers {
-			if h(r, c) {
-				break
+		select {
+		case <-stop:
+			return TaskStatusAborted
+		default:
+			time.Sleep(1 * time.Second)
+			r.stepLock.Lock()
+			for _, h := range handlers {
+				if h(r, c) {
+					break
+				}
 			}
+			r.stepLock.Unlock()
 		}
-		r.stepLock.Unlock()
 	}
+	return TaskStatusSuccessful
 }
