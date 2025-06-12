@@ -70,7 +70,7 @@ func (r *robot) EnqueueTask(commands string) string {
 		commands:   tokens,
 		rawCommand: commands,
 		status:     TaskStatusOngoing,
-		stop:       make(chan struct{}, 1),
+		stop:       make(chan struct{}),
 	}
 	r.activeTasks.Store(taskID, t)
 	r.taskQueue <- *t

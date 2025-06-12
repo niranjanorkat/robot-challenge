@@ -112,12 +112,17 @@ func runMovement(r *robot, commands []string, stop <-chan struct{}, handlers ...
 		default:
 			time.Sleep(1 * time.Second)
 			r.stepLock.Lock()
+			isValidMove := false
 			for _, h := range handlers {
 				if h(r, c) {
+					isValidMove = true
 					break
 				}
 			}
 			r.stepLock.Unlock()
+			if !isValidMove {
+				return TaskStatusAborted
+			}
 		}
 	}
 	return TaskStatusSuccessful
