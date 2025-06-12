@@ -31,22 +31,30 @@ func handleCrateCommands(parts []string) bool {
 			fmt.Println(MsgInvalidAddCrate)
 			return true
 		}
-		wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
+
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		wID, err1 := strconv.Atoi(wIDStr)
 		x, err2 := strconv.Atoi(parts[2])
 		y, err3 := strconv.Atoi(parts[3])
-		if err1 != nil || err2 != nil || err3 != nil || !validWarehouseID(wID) {
+
+		hasParseError := err1 != nil || err2 != nil || err3 != nil
+		isInvalidWarehouse := !validWarehouseID(wID)
+		if hasParseError || isInvalidWarehouse {
 			fmt.Println(MsgInvalidAddCrate)
 			return true
 		}
-		if cw, ok := warehouses[wID-1].(librobot.CrateWarehouse); ok {
-			err := cw.AddCrate(uint(x), uint(y))
-			if err != nil {
-				fmt.Println(MsgCrateError, err)
-			} else {
-				fmt.Println(MsgCrateAdded)
-			}
-		} else {
+
+		cw, isCrateWarehouse := warehouses[wID-1].(librobot.CrateWarehouse)
+		if !isCrateWarehouse {
 			fmt.Println(MsgNotCrateWarehouse)
+			return true
+		}
+
+		err := cw.AddCrate(uint(x), uint(y))
+		if err != nil {
+			fmt.Println(MsgCrateError, err)
+		} else {
+			fmt.Println(MsgCrateAdded)
 		}
 		return true
 
@@ -55,16 +63,21 @@ func handleCrateCommands(parts []string) bool {
 			fmt.Println(MsgInvalidShowCrate)
 			return true
 		}
-		wID, err := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
-		if err != nil || !validWarehouseID(wID) {
+
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		wID, err := strconv.Atoi(wIDStr)
+		isInvalidWarehouse := err != nil || !validWarehouseID(wID)
+		if isInvalidWarehouse {
 			fmt.Println(MsgInvalidWarehouseID)
 			return true
 		}
-		cw, ok := warehouses[wID-1].(librobot.CrateWarehouse)
-		if !ok {
+
+		cw, isCrateWarehouse := warehouses[wID-1].(librobot.CrateWarehouse)
+		if !isCrateWarehouse {
 			fmt.Println(MsgNotCrateWarehouse)
 			return true
 		}
+
 		fmt.Println(MsgCrateListHeader)
 		found := false
 		for x := 0; x < 10; x++ {

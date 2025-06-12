@@ -32,16 +32,20 @@ func handleRobotCommands(parts []string) bool {
 			fmt.Println(MsgInvalidAddRobot)
 			return true
 		}
-		wID, err := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
-		if err != nil || !validWarehouseID(wID) {
+
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		wID, err := strconv.Atoi(wIDStr)
+		isInvalidWarehouse := err != nil || !validWarehouseID(wID)
+		if isInvalidWarehouse {
 			fmt.Println(MsgInvalidWarehouseID)
 			return true
 		}
-		// Default to "N" if type not specified
+
 		robotType := "N"
 		if len(parts) >= 3 {
 			robotType = strings.ToUpper(parts[2])
 		}
+
 		_, err = warehouses[wID-1].AddRobot(robotType)
 		if err != nil {
 			fmt.Println(MsgErrorAddingRobot, err)
@@ -55,16 +59,21 @@ func handleRobotCommands(parts []string) bool {
 			fmt.Println(MsgInvalidShowRobots)
 			return true
 		}
-		wID, err := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
-		if err != nil || !validWarehouseID(wID) {
+
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		wID, err := strconv.Atoi(wIDStr)
+		isInvalidWarehouse := err != nil || !validWarehouseID(wID)
+		if isInvalidWarehouse {
 			fmt.Println(MsgInvalidWarehouseID)
 			return true
 		}
+
 		robots := warehouses[wID-1].Robots()
 		if len(robots) == 0 {
 			fmt.Println(MsgNoRobots)
 			return true
 		}
+
 		fmt.Println(MsgRobotListHeader)
 		for i, r := range robots {
 			state := r.CurrentState()
@@ -77,19 +86,28 @@ func handleRobotCommands(parts []string) bool {
 			fmt.Println(MsgInvalidMove)
 			return true
 		}
-		wID, err1 := strconv.Atoi(strings.TrimPrefix(parts[1], "W"))
-		rID, err2 := strconv.Atoi(strings.TrimPrefix(parts[2], "R"))
+
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		rIDStr := strings.TrimPrefix(parts[2], "R")
 		command := strings.Join(parts[3:], "")
-		if err1 != nil || !validWarehouseID(wID) {
+
+		wID, err1 := strconv.Atoi(wIDStr)
+		rID, err2 := strconv.Atoi(rIDStr)
+
+		isInvalidWarehouse := err1 != nil || !validWarehouseID(wID)
+		isInvalidRobot := err2 != nil || rID <= 0 || rID > len(warehouses[wID-1].Robots())
+
+		if isInvalidWarehouse {
 			fmt.Println(MsgInvalidWarehouseID)
 			return true
 		}
-		warehouse := warehouses[wID-1]
-		if err2 != nil || rID <= 0 || rID > len(warehouse.Robots()) {
+
+		if isInvalidRobot {
 			fmt.Println(MsgInvalidRobotID)
 			return true
 		}
-		err := warehouse.SendCommand(rID-1, command)
+
+		err := warehouses[wID-1].SendCommand(rID-1, command)
 		if err != nil {
 			fmt.Println(MsgMoveError, err)
 		} else {

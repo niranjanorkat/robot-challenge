@@ -59,3 +59,7 @@ func handleWarehouseCommands(parts []string) bool {
 	}
 	return true
 }
+
+func validWarehouseID(wID int) bool {
+	return wID > 0 && wID <= len(warehouses)
+}
