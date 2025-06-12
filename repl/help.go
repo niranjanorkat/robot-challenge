@@ -9,6 +9,7 @@ var commandHelpMap = map[string]string{
 	CmdShowRobots:    MsgUsageShowRobots,
 	CmdMoveRobot:     MsgUsageMoveRobot,
 	CmdAddCrate:      MsgUsageAddCrate,
+	CmdDelCrate:      MsgUsageDelCrate,
 	CmdShowCrates:    MsgUsageShowCrates,
 	CmdShowGrid:      MsgUsageShowGrid,
 	CmdShowTasks:     MsgUsageShowTasks,

@@ -56,6 +56,7 @@ rcli>
 |-------------------------------------|-----------------------------------------------------|
 | `add_crate W<id> x y`               | Add crate to `(x, y)` of crate-enabled warehouse    |
 | `show_crates W<id>`                 | List crates in warehouse                           |
+| `del_crate W<id> x y`             | Delete crate from position `(x, y)` in a crate-enabled warehouse |
 
 ### Grid & Visualization
 

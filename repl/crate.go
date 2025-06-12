@@ -11,6 +11,9 @@ import (
 const (
 	MsgUsageAddCrate = "add_crate W<id> x y - Adds a crate to (x, y) in a crate-enabled warehouse."
 	MsgUsageShowCrates = "show_crates W<id> - Lists all crate locations in the warehouse."
+	MsgUsageDelCrate     = "del_crate W<id> x y - Deletes a crate from (x, y) in a crate-enabled warehouse."
+	MsgCrateDeleted      = "Crate deleted successfully."
+	MsgCrateDeleteError  = "Error deleting crate:"
 	MsgCrateAdded       = "Crate added successfully."
 	MsgCrateError       = "Error adding crate:"
 	MsgCrateListHeader  = "Crates in warehouse:"
@@ -18,10 +21,11 @@ const (
 	MsgNotCrateWarehouse = "This warehouse does not support crates."
 	MsgCrateLocation    = "- Crate at (x=%d, y=%d)\n"
 )
-
 var (
 	MsgInvalidAddCrate  = "Invalid add_crate command. Usage: " + MsgUsageAddCrate
 	MsgInvalidShowCrate = "Invalid show_crates command. Usage: " + MsgUsageShowCrates
+	MsgInvalidDelCrate = "Invalid del_crate command. Usage: " + MsgUsageDelCrate
+
 )
 
 func handleCrateCommands(parts []string) bool {
@@ -57,7 +61,37 @@ func handleCrateCommands(parts []string) bool {
 			fmt.Println(MsgCrateAdded)
 		}
 		return true
+	case CmdDelCrate:
+		if len(parts) != 4 {
+			fmt.Println(MsgInvalidDelCrate)
+			return true
+		}
 
+		wIDStr := strings.TrimPrefix(parts[1], "W")
+		wID, err1 := strconv.Atoi(wIDStr)
+		x, err2 := strconv.Atoi(parts[2])
+		y, err3 := strconv.Atoi(parts[3])
+
+		hasParseError := err1 != nil || err2 != nil || err3 != nil
+		isInvalidWarehouse := !validWarehouseID(wID)
+		if hasParseError || isInvalidWarehouse {
+			fmt.Println(MsgInvalidDelCrate)
+			return true
+		}
+
+		cw, isCrateWarehouse := warehouses[wID-1].(librobot.CrateWarehouse)
+		if !isCrateWarehouse {
+			fmt.Println(MsgNotCrateWarehouse)
+			return true
+		}
+
+		err := cw.DelCrate(uint(x), uint(y))
+		if err != nil {
+			fmt.Println(MsgCrateDeleteError, err)
+		} else {
+			fmt.Println(MsgCrateDeleted)
+		}
+		return true
 	case CmdShowCrates:
 		if len(parts) != 2 {
 			fmt.Println(MsgInvalidShowCrate)

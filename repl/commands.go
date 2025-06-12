@@ -10,7 +10,7 @@ const (
 	// Crate
 	CmdAddCrate   = "add_crate"
 	CmdShowCrates = "show_crates"
-
+	CmdDelCrate   = "del_crate"
 	// Robot (add more as you move robot commands)
 	CmdAddRobot   = "add_robot"
 	CmdShowRobots = "show_robots"
