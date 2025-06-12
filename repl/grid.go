@@ -21,6 +21,7 @@ const (
 	MsgGridRobotPrefix    = "R"
 	MsgGridDiagonalPrefix = "D"
 	MsgLiveSimulation     = "Live simulation mode. Press Ctrl+D to exit."
+	MsgExitingLiveMode    = "Exiting live mode."
 )
 
 var (
