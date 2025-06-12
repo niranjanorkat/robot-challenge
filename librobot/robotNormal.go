@@ -15,6 +15,7 @@ type Robot interface {
 type RobotState struct {
 	X        uint
 	Y        uint
+	IsCarryingCrate    bool
 }
 
 type robot struct {
@@ -55,7 +56,7 @@ func (r *robot) EnqueueTask(commands string) string {
 		commands:   tokens,
 		rawCommand: commands,
 		status:     TaskStatusOngoing,
-		stop:       make(chan struct{}),
+		stop:       make(chan struct{}, 1),
 	}
 	r.activeTasks.Store(taskID, t)
 	r.taskQueue <- *t
@@ -92,7 +93,7 @@ func (r *robot) GetActiveTasks() []TaskInfo {
 }
 
 func (r *robot) CurrentState() RobotState {
-	return RobotState{X: r.x, Y: r.y}
+	return RobotState{X: r.x, Y: r.y, IsCarryingCrate: r.isCarryingCrate}
 }
 
 // ─── Internal Processor ──────────────────────────────────────
