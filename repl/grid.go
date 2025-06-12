@@ -1,7 +1,6 @@
 package repl
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/niranjanorkat/robot-challenge/librobot"
 )
+	"bufio"
 
 const (
 	MsgUsageShowGrid      = "show_grid W<id> [live] - Displays robot and crate grid layout. Add 'live' to watch."
@@ -21,6 +21,7 @@ const (
 	MsgGridCrateCell      = "C"
 	MsgGridRobotPrefix    = "R"
 	MsgGridDiagonalPrefix = "D"
+	MsgLiveSimulation     = "Live simulation mode. Press Ctrl+D to exit."
 )
 
 var (
@@ -34,35 +35,21 @@ func handleGridCommands(parts []string) bool {
 		return false
 	}
 
-	hasWrongArgCount := len(parts) < 2 || len(parts) > 3
-	if hasWrongArgCount {
+	if len(parts) < 2 || len(parts) > 3 {
 		fmt.Println(MsgInvalidShowGrid)
 		return true
 	}
 
 	wIDStr := strings.TrimPrefix(parts[1], "W")
 	wID, err := strconv.Atoi(wIDStr)
-	isInvalidWarehouse := err != nil || !validWarehouseID(wID)
-	if isInvalidWarehouse {
+	if err != nil || !validWarehouseID(wID) {
 		fmt.Println(MsgInvalidWarehouseID)
 		return true
 	}
 
 	isLiveMode := len(parts) == 3 && parts[2] == "live"
 	if isLiveMode {
-		fmt.Println("Live simulation mode. Press Ctrl+D to exit.")
-		reader := bufio.NewReader(os.Stdin)
-
-		for {
-			fmt.Print(clearScreen)
-			printGrid(wID)
-			time.Sleep(1 * time.Second)
-
-			_, err := reader.ReadString('\n')
-			if err == io.EOF {
-				break
-			}
-		}
+		startLiveGridDisplay(wID)
 		return true
 	}
 
@@ -70,6 +57,34 @@ func handleGridCommands(parts []string) bool {
 	return true
 }
 
+func startLiveGridDisplay(wID int) {
+	fmt.Println(MsgLiveSimulation)
+
+	eofChan := make(chan struct{})
+
+	go func() {
+		buf := make([]byte, 1)
+		for {
+			_, err := os.Stdin.Read(buf)
+			if err == io.EOF {
+				close(eofChan)
+				return
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-eofChan:
+			fmt.Println(MsgExitingLiveMode)
+			return
+		default:
+			fmt.Print(clearScreen)
+			printGrid(wID)
+			time.Sleep(1 * time.Second)
+		}
+	}
+}
 func printGrid(wID int) {
 	warehouse := warehouses[wID-1]
 
